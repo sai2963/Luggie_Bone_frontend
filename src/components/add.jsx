@@ -145,7 +145,7 @@ export default function Add() {
     const formData = new FormData(e.target);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/post', {
+      const response = await axios.post('https://luggie-bone-backend.vercel.app/api/post', {
         username: formData.get('username'),
         title: formData.get('title'),
         price: formData.get('price'),

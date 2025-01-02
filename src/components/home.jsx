@@ -11,7 +11,7 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/get");
+        const response = await axios.get("https://luggie-bone-backend.vercel.app/api/get");
 
         setData(response.data);
         setLoading(false);
