@@ -1,70 +1,124 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Search, ShoppingCart, Home, Tags, Grid, PlusSquare } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, ShoppingCart, Home, Tags, Grid, PlusSquare, Menu, X } from "lucide-react";
 import { Button } from "./components/ui/button";
 
 export default function Header() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const navItems = [
+    { text: "Home", icon: Home, href: "/" },
+    { text: "Brands", icon: Tags, href: "/brands" },
+    { text: "Categories", icon: Grid, href: "/categories" },
+    { text: "Cart", icon: ShoppingCart, href: "/cart" },
+    { text: "Add", icon: PlusSquare, href: "/add" },
+  ];
+
   return (
-    <motion.div
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-      className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-700"
+    <motion.header
+      initial={{ opacity: 0, y: -100 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`fixed w-full z-50 transition-all duration-300 ${
+        isScrolled 
+          ? "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-lg" 
+          : "bg-transparent"
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <motion.div whileHover={{ scale: 1.05 }} className="flex-shrink-0">
-            <Link to="/">
-              <Button className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 text-2xl font-bold">
-                Luggie Bone
-              </Button>
-            </Link>
-          </motion.div>
-
-          {/* Search Bar */}
-          <div className="flex-1 max-w-lg mx-8">
-            <form action="/search" method="post" className="relative">
-              <input
-                type="text"
-                name="search"
-                placeholder="Search..."
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-300 placeholder-gray-500"
-              />
-              <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
-            </form>
-          </div>
-
-          {/* Navigation */}
-          <motion.nav
-            className="flex items-center space-x-8"
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
+            className="flex-shrink-0"
           >
-            {[
-              { text: "Home", icon: Home, href: "/" },
-              { text: "Brands", icon: Tags, href: "/brands" },
-              { text: "Categories", icon: Grid, href: "/categories" },
-              { text: "Cart", icon: ShoppingCart, href: "/cart" },
-              { text: "Add", icon: PlusSquare, href: "/add" },
-            ].map((item, index) => (
-              <motion.span
+            <Link 
+              to="/" 
+              className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent"
+            >
+              Luggie Bone
+            </Link>
+          </motion.div>
+
+          
+          
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            {navItems.map((item, index) => (
+              <motion.div
                 key={item.text}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center space-x-1 text-gray-300 hover:text-purple-400 cursor-pointer transition-colors duration-200"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
               >
-                <item.icon className="h-5 w-5" />
-                <Link to={item.href}>
-                  <Button>{item.text}</Button>
+                <Link
+                  to={item.href}
+                  className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-200"
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.text}</span>
                 </Link>
-              </motion.span>
+              </motion.div>
             ))}
-          </motion.nav>
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-300 hover:text-white"
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
         </div>
       </div>
-    </motion.div>
+
+      {/* Mobile Navigation Menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-gray-900"
+          >
+            <div className="px-4 pt-2 pb-4 space-y-4">
+              {navItems.map((item, index) => (
+                <motion.div
+                  key={item.text}
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Link
+                    to={item.href}
+                    className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.text}</span>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 }
