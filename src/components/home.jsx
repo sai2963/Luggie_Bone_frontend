@@ -69,8 +69,8 @@ export default function Home() {
               <div className="relative h-64 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
                 <motion.img
-                  src={item.heroImage}
-                  alt={item.heroTitle}
+                  src={item.image}
+                  alt={item.title}
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                 />
               </div>

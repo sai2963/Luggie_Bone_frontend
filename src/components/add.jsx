@@ -30,7 +30,8 @@ const formSchema = z.object({
   features: z.string().min(5, { message: "Features must be at least 5 characters long." }),
   manufacturedBy: z.string().min(2, { message: "Manufacturer name must be at least 2 characters long." }),
   materialCare: z.string().min(5, { message: "Material care details are required." }),
-  terms: z.string().min(5, { message: "Terms must be at least 5 characters." })
+  terms: z.string().min(5, { message: "Terms must be at least 5 characters." }),
+  image: z.instanceof(File).refine(file => file?.size > 0, { message: "Image is required." }),
 });
 const fieldConfig = [
   {
@@ -104,19 +105,20 @@ const fieldConfig = [
     type: "textarea",
     component: Textarea,
   },
-  // {
-  //   name: "image",
-  //   label: "Image",
-  //   description: "Upload an image (JPG, JPEG, PNG).",
-  //   type: "file",
-  //   component: Input,
-  // },
+ 
   {
     name: "terms",
     label: "Terms and Conditions",
     placeholder: "Enter Terms and Conditions",
     type: "textarea",
     component: Textarea,
+  },
+  {
+    name: "image",
+    label: "Image",
+    description: "Upload an image (JPG, JPEG, PNG).",
+    type: "file",
+    component: Input,
   },
 ];
 
@@ -134,7 +136,8 @@ export default function Add() {
       features: "",
       manufacturedBy: "",
       materialCare: "",
-      terms: ""
+      terms: "",
+      image: null
     },
   });
 
@@ -156,7 +159,8 @@ export default function Add() {
         features: formData.get('features'),
         manufacturedBy: formData.get('manufacturedBy'),
         materialCare: formData.get('materialCare'),
-        terms: formData.get('terms')
+        terms: formData.get('terms'),
+        image: formData.get('image')
 
       });
       console.log("Data added Successfully", response.data);
@@ -214,6 +218,7 @@ export default function Add() {
                         <FormControl>
                           <field.component
                             {...inputField}
+                            type={field.type}
                             placeholder={field.placeholder}
                             className="w-full bg-gray-900/50 border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-200 placeholder-gray-400"
                           />
