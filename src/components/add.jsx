@@ -17,38 +17,47 @@ import {
 } from "./components/ui/form";
 import { Input } from "./components/ui/input";
 import { Textarea } from "./components/ui/textarea";
-import { use } from "react";
 
 const formSchema = z.object({
   username: z
     .string()
     .min(2, { message: "Username must be at least 2 characters." }),
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
-  price: z.string().min(2, { message: "Price must be a positive number." }),
-  brand: z.string().min(2, { message: "Brand Must Be 2 Characters" }),
+  price: z.string().min(1, { message: "Price must be a positive number." }),
+  brand: z.string().min(2, { message: "Brand must be at least 2 characters." }),
   size: z.string().min(1, { message: "Size cannot be empty." }),
   color: z.string().min(1, { message: "Color cannot be empty." }),
-  quantity: z.string().min(2, { message: "Quantity must be at least 1." }),
+  quantity: z
+    .string()
+    .min(1, { message: "Quantity must be at least 1 character." }),
   features: z
     .string()
     .min(5, { message: "Features must be at least 5 characters long." }),
   manufacturedBy: z
     .string()
-    .min(2, {
-      message: "Manufacturer name must be at least 2 characters long.",
-    }),
+    .min(2, { message: "Manufacturer must be at least 2 characters long." }),
   materialCare: z
     .string()
-    .min(5, { message: "Material care details are required." }),
+    .min(5, {
+      message: "Material care details must be at least 5 characters.",
+    }),
   terms: z.string().min(5, { message: "Terms must be at least 5 characters." }),
-  image: z.any(),
+  image: z
+    .instanceof(File)
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "File must be smaller than 5MB.",
+    })
+    .refine((file) => ["image/jpeg", "image/png"].includes(file.type), {
+      message: "Only JPEG or PNG files are allowed.",
+    })
+    .nullable(),
 });
+
 const fieldConfig = [
   {
     name: "username",
     label: "Username",
     placeholder: "Enter your username",
-    description: "This is your public display name.",
     type: "text",
     component: Input,
   },
@@ -60,16 +69,16 @@ const fieldConfig = [
     component: Input,
   },
   {
-    name: "brand",
-    label: "Brand",
-    placeholder: "Enter the brand name",
+    name: "price",
+    label: "Price",
+    placeholder: "Enter the price",
     type: "text",
     component: Input,
   },
   {
-    name: "price",
-    label: "Price",
-    placeholder: "Enter the price",
+    name: "brand",
+    label: "Brand",
+    placeholder: "Enter the brand",
     type: "text",
     component: Input,
   },
@@ -104,26 +113,31 @@ const fieldConfig = [
   {
     name: "manufacturedBy",
     label: "Manufactured By",
-    placeholder: "Enter the manufacturer name",
+    placeholder: "Enter the manufacturer",
     type: "text",
     component: Input,
   },
   {
     name: "materialCare",
     label: "Material Care",
-    placeholder: "Enter material care instructions",
+    placeholder: "Enter care instructions",
     type: "textarea",
     component: Textarea,
   },
-
   {
     name: "terms",
-    label: "Terms and Conditions",
-    placeholder: "Enter Terms and Conditions",
+    label: "Terms",
+    placeholder: "Enter terms and conditions",
     type: "textarea",
     component: Textarea,
   },
- 
+  {
+    name: "image",
+    label: "Upload Image",
+    placeholder: "",
+    type: "file",
+    component: "file", // Use "file" to indicate custom handling for file input
+  },
 ];
 
 export default function Add() {
@@ -141,38 +155,45 @@ export default function Add() {
       manufacturedBy: "",
       materialCare: "",
       terms: "",
-      image:null,
+      image: null,
     },
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Get form data using form names
-    const formData = new FormData(e.target);
+  const handleSubmit = async (data) => {
+    const formData = new FormData();
+    Object.keys(data).forEach((key) => {
+      if (key === "image") {
+        formData.append(key, data[key][0]); // File input
+      } else {
+        formData.append(key, data[key]);
+      }
+    });
 
     try {
       const response = await axios.post(
         "https://luggie-bone-backend.vercel.app/api/post",
         {
-          username: formData.get("username"),
-          title: formData.get("title"),
-          price: formData.get("price"),
-          size: formData.get("size"),
-          brand: formData.get("brand"),
-          color: formData.get("color"),
-          quantity: formData.get("quantity"),
-          features: formData.get("features"),
-          manufacturedBy: formData.get("manufacturedBy"),
-          materialCare: formData.get("materialCare"),
-          terms: formData.get("terms"),
-          image: formData.get("image"),
+          username: data.username,
+          title: data.title,
+          price: data.price,
+          brand: data.brand,
+          size: data.size,
+          color: data.color,
+          quantity: data.quantity,
+          features: data.features,
+          manufacturedBy: data.manufacturedBy,
+          materialCare: data.materialCare,
+          terms: data.terms,
+          image: data.image,
+        },
+        {
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      console.log("Data added Successfully", response.data);
-      e.target.reset();
+      console.log("Data submitted successfully:", response.data);
+      form.reset();
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error submitting data:", error);
     }
   };
 
@@ -191,20 +212,14 @@ export default function Add() {
           >
             Add New Product
           </motion.h1>
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: "100%" }}
-            className="h-1 bg-gradient-to-r from-purple-500 to-pink-500 mt-4 mx-auto max-w-[100px]"
-          />
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-gray-700"
-        >
+        <motion.div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-gray-700">
           <Form {...form}>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-6"
+            >
               {fieldConfig.map((field, index) => (
                 <motion.div
                   key={field.name}
@@ -213,71 +228,63 @@ export default function Add() {
                   transition={{ delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <FormField
-                    control={form.control}
-                    name={field.name}
-                    render={({ field: inputField }) => (
-                      <FormItem className="group">
-                        <FormLabel className="text-gray-200 font-medium">
-                          {field.label}
-                        </FormLabel>
-                        <FormControl>
-                          <field.component
-                            {...inputField}
-                            placeholder={field.placeholder}
-                            className="w-full bg-gray-900/50 border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-200 placeholder-gray-400"
-                          />
-                        </FormControl>
-                        {field.description && (
-                          <FormDescription className="text-gray-400 text-sm">
-                            {field.description}
-                          </FormDescription>
-                        )}
-                        <FormMessage className="text-red-400" />
-                      </FormItem>
-                    )}
-                  />
-                 
+                  {field.type === "file" ? (
+                    <FormField
+                      control={form.control}
+                      name={field.name}
+                      render={({ field: inputField }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-200 font-medium">
+                            {field.label}
+                          </FormLabel>
+                          <FormControl>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) =>
+                                inputField.onChange(e.target.files?.[0] || null)
+                              } // Bind file to form state
+                              className="w-full bg-gray-900/50 border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-200 placeholder-gray-400"
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-400" />
+                        </FormItem>
+                      )}
+                    />
+                  ) : (
+                    <FormField
+                      control={form.control}
+                      name={field.name}
+                      render={({ field: inputField }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-200 font-medium">
+                            {field.label}
+                          </FormLabel>
+                          <FormControl>
+                            <field.component
+                              {...inputField}
+                              placeholder={field.placeholder}
+                              className="w-full bg-gray-900/50 border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-200 placeholder-gray-400"
+                            />
+                          </FormControl>
+                          {field.description && (
+                            <FormDescription className="text-gray-400 text-sm">
+                              {field.description}
+                            </FormDescription>
+                          )}
+                          <FormMessage className="text-red-400" />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                 </motion.div>
               ))}
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                className="group"
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-medium hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 transform hover:-translate-y-0.5"
               >
-                 <FormField
-                    control={form.control}
-                    name="image"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-200 font-medium">Upload Image</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => field.onChange(e.target.files[0])}
-                            className="bg-gray-800 border-gray-700 text-gray-200 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-500 file:text-white hover:file:bg-purple-600 transition-all duration-300"
-                          />
-                        </FormControl>
-                        <FormMessage className="text-red-400" />
-                      </FormItem>
-                    )}
-                  />
-              </motion.div>
-
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                className="pt-6"
-              >
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-medium hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 transform hover:-translate-y-0.5"
-                >
-                  Submit Product
-                </Button>
-              </motion.div>
+                Submit Product
+              </Button>
             </form>
           </Form>
         </motion.div>
