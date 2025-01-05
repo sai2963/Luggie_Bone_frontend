@@ -59,7 +59,7 @@ export default function Add() {
       .refine((file) => file.size <= 5 * 1024 * 1024, {
         message: "File must be smaller than 5MB.",
       })
-      .refine((file) => ["image/*"].includes(file.type), {
+      .refine((file) => ["image/jpeg", "image/png"].includes(file.type), {
         message: "Only JPEG or PNG files are allowed.",
       })
       .nullable(),
