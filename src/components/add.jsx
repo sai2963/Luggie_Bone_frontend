@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import axios from "axios";
-
+import { useState } from "react";
 import { Button } from "./components/ui/button";
 import {
   Form,
@@ -18,129 +18,150 @@ import {
 import { Input } from "./components/ui/input";
 import { Textarea } from "./components/ui/textarea";
 
-const formSchema = z.object({
-  username: z
-    .string()
-    .min(2, { message: "Username must be at least 2 characters." }),
-  title: z.string().min(2, { message: "Title must be at least 2 characters." }),
-  price: z.string().min(1, { message: "Price must be a positive number." }),
-  brand: z.string().min(2, { message: "Brand must be at least 2 characters." }),
-  size: z.string().min(1, { message: "Size cannot be empty." }),
-  color: z.string().min(1, { message: "Color cannot be empty." }),
-  quantity: z
-    .string()
-    .min(1, { message: "Quantity must be at least 1 character." }),
-  features: z
-    .string()
-    .min(5, { message: "Features must be at least 5 characters long." }),
-  manufacturedBy: z
-    .string()
-    .min(2, { message: "Manufacturer must be at least 2 characters long." }),
-  materialCare: z
-    .string()
-    .min(5, {
-      message: "Material care details must be at least 5 characters.",
-    }),
-  terms: z.string().min(5, { message: "Terms must be at least 5 characters." }),
-  image: z
-    .instanceof(File)
-    .refine((file) => file.size <= 5 * 1024 * 1024, {
-      message: "File must be smaller than 5MB.",
-    })
-    .refine((file) => ["image/jpeg", "image/png"].includes(file.type), {
-      message: "Only JPEG or PNG files are allowed.",
-    })
-    .nullable(),
-});
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../firebase/clientApp.js";
 
-const fieldConfig = [
-  {
-    name: "username",
-    label: "Username",
-    placeholder: "Enter your username",
-    type: "text",
-    component: Input,
-  },
-  {
-    name: "title",
-    label: "Title",
-    placeholder: "Enter the product title",
-    type: "text",
-    component: Input,
-  },
-  {
-    name: "price",
-    label: "Price",
-    placeholder: "Enter the price",
-    type: "text",
-    component: Input,
-  },
-  {
-    name: "brand",
-    label: "Brand",
-    placeholder: "Enter the brand",
-    type: "text",
-    component: Input,
-  },
-  {
-    name: "size",
-    label: "Size",
-    placeholder: "Enter the size",
-    type: "text",
-    component: Input,
-  },
-  {
-    name: "color",
-    label: "Color",
-    placeholder: "Enter the color",
-    type: "text",
-    component: Input,
-  },
-  {
-    name: "quantity",
-    label: "Quantity",
-    placeholder: "Enter the quantity",
-    type: "text",
-    component: Input,
-  },
-  {
-    name: "features",
-    label: "Features",
-    placeholder: "List the features",
-    type: "textarea",
-    component: Textarea,
-  },
-  {
-    name: "manufacturedBy",
-    label: "Manufactured By",
-    placeholder: "Enter the manufacturer",
-    type: "text",
-    component: Input,
-  },
-  {
-    name: "materialCare",
-    label: "Material Care",
-    placeholder: "Enter care instructions",
-    type: "textarea",
-    component: Textarea,
-  },
-  {
-    name: "terms",
-    label: "Terms",
-    placeholder: "Enter terms and conditions",
-    type: "textarea",
-    component: Textarea,
-  },
-  {
-    name: "image",
-    label: "Upload Image",
-    placeholder: "",
-    type: "file",
-    component: "file", // Use "file" to indicate custom handling for file input
-  },
-];
+
 
 export default function Add() {
+  const [file, setFile] = useState(null);
+
+  const formSchema = z.object({
+    username: z
+      .string()
+      .min(2, { message: "Username must be at least 2 characters." }),
+    title: z
+      .string()
+      .min(2, { message: "Title must be at least 2 characters." }),
+    price: z.string().min(1, { message: "Price must be a positive number." }),
+    brand: z
+      .string()
+      .min(2, { message: "Brand must be at least 2 characters." }),
+    size: z.string().min(1, { message: "Size cannot be empty." }),
+    color: z.string().min(1, { message: "Color cannot be empty." }),
+    quantity: z
+      .string()
+      .min(1, { message: "Quantity must be at least 1 character." }),
+    features: z
+      .string()
+      .min(5, { message: "Features must be at least 5 characters long." }),
+    manufacturedBy: z
+      .string()
+      .min(2, { message: "Manufacturer must be at least 2 characters long." }),
+    materialCare: z.string().min(5, {
+      message: "Material care details must be at least 5 characters.",
+    }),
+    terms: z
+      .string()
+      .min(5, { message: "Terms must be at least 5 characters." }),
+    image: z
+      .instanceof(File)
+      .refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "File must be smaller than 5MB.",
+      })
+      .refine((file) => ["image/jpeg", "image/png"].includes(file.type), {
+        message: "Only JPEG or PNG files are allowed.",
+      })
+      .nullable(),
+  });
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      console.log("File selected:", selectedFile.name);
+    } else {
+      console.log("No file selected");
+    }
+  };
+
+  const fieldConfig = [
+    {
+      name: "username",
+      label: "Username",
+      placeholder: "Enter your username",
+      type: "text",
+      component: Input,
+    },
+    {
+      name: "title",
+      label: "Title",
+      placeholder: "Enter the product title",
+      type: "text",
+      component: Input,
+    },
+    {
+      name: "price",
+      label: "Price",
+      placeholder: "Enter the price",
+      type: "text",
+      component: Input,
+    },
+    {
+      name: "brand",
+      label: "Brand",
+      placeholder: "Enter the brand",
+      type: "text",
+      component: Input,
+    },
+    {
+      name: "size",
+      label: "Size",
+      placeholder: "Enter the size",
+      type: "text",
+      component: Input,
+    },
+    {
+      name: "color",
+      label: "Color",
+      placeholder: "Enter the color",
+      type: "text",
+      component: Input,
+    },
+    {
+      name: "quantity",
+      label: "Quantity",
+      placeholder: "Enter the quantity",
+      type: "text",
+      component: Input,
+    },
+    {
+      name: "features",
+      label: "Features",
+      placeholder: "List the features",
+      type: "textarea",
+      component: Textarea,
+    },
+    {
+      name: "manufacturedBy",
+      label: "Manufactured By",
+      placeholder: "Enter the manufacturer",
+      type: "text",
+      component: Input,
+    },
+    {
+      name: "materialCare",
+      label: "Material Care",
+      placeholder: "Enter care instructions",
+      type: "textarea",
+      component: Textarea,
+    },
+    {
+      name: "terms",
+      label: "Terms",
+      placeholder: "Enter terms and conditions",
+      type: "textarea",
+      component: Textarea,
+    },
+    {
+      name: "image",
+      label: "Upload Image",
+      placeholder: "",
+      type: "file",
+      component: "file",
+      onChange: handleFileChange,
+    },
+  ];
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -168,8 +189,25 @@ export default function Add() {
         formData.append(key, data[key]);
       }
     });
-
     try {
+      if (!file) {
+        console.error("No file selected");
+        return;
+      }
+
+      console.log("Starting file upload...");
+      const storageRef = ref(storage, `images/${file.name}`);
+
+      // Upload file
+      console.log("Uploading file...");
+      await uploadBytes(storageRef, file);
+
+      // Get download URL
+      console.log("Getting download URL...");
+      const imageUrl = await getDownloadURL(storageRef);
+      console.log(imageUrl);
+      
+      console.log("File uploaded successfully, URL:", imageUrl);
       const response = await axios.post(
         "https://luggie-bone-backend.vercel.app/api/post",
         {
@@ -184,14 +222,15 @@ export default function Add() {
           manufacturedBy: data.manufacturedBy,
           materialCare: data.materialCare,
           terms: data.terms,
-          image: data.image,
+          image: imageUrl,
         },
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: { "Content-Type": "application/json" },
         }
       );
       console.log("Data submitted successfully:", response.data);
       form.reset();
+      setFile(null);
     } catch (error) {
       console.error("Error submitting data:", error);
     }
@@ -241,12 +280,20 @@ export default function Add() {
                             <input
                               type="file"
                               accept="image/*"
-                              onChange={(e) =>
-                                inputField.onChange(e.target.files?.[0] || null)
-                              } // Bind file to form state
+                              onChange={(e) => {
+                                inputField.onChange(
+                                  e.target.files?.[0] || null
+                                );
+                                handleFileChange(e); // Add this line to handle file state
+                              }}
                               className="w-full bg-gray-900/50 border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-200 placeholder-gray-400"
                             />
                           </FormControl>
+                          {file && (
+                            <FormDescription className="text-gray-400 text-sm">
+                              Selected file: {file.name}
+                            </FormDescription>
+                          )}
                           <FormMessage className="text-red-400" />
                         </FormItem>
                       )}
