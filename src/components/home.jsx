@@ -37,6 +37,11 @@ export default function Home() {
         const response24 = axios.get("https://safaribags.com/collections/backpacks/products.json");
         const response25 = axios.get("https://safaribags.com/collections/duffles/products.json");
         const response26 = axios.get("https://safaribags.com/collections/accessories/products.json");
+        const response27 = axios.get("https://www.capresebags.com/collections/all/products.json");
+        const response28 = axios.get("https://www.capresebags.com/collections/handbags-for-women/products.json");
+        const response29 = axios.get("https://www.capresebags.com/collections/slings-for-women/products.json");
+        const response30 = axios.get("https://www.capresebags.com/collections/accessories-for-women/products.json");
+        const response31 = axios.get("https://www.capresebags.com/collections/backpacks-for-women/products.json");
 
         
   
@@ -64,7 +69,13 @@ export default function Home() {
           response23,
           response24,
           response25,
-          response26
+          response26,
+          response27,
+          response28,
+          response28,
+          response29,
+          response30
+
 
         ]);
   
