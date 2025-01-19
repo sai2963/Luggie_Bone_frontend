@@ -21,6 +21,24 @@ export default function Home() {
         const response8 = axios.get("https://vipbags.com/collections/check-in-luggage/products.json");
         const response9 = axios.get("https://vipbags.com/collections/lightweight-luggage/products.json");
         const response10 = axios.get("https://vipbags.com/collections/luggage-set/products.json");
+        const response11 = axios.get("https://vipbags.com/collections/duffles/products.json");
+        const response12 = axios.get("https://skybags.co.in/collections/hard-luggage/products.json");
+        const response13 = axios.get("https://skybags.co.in/collections/soft-luggage/products.json");
+        const response14 = axios.get("https://skybags.co.in/collections/cabin-luggage/products.json");
+        const response15 = axios.get("https://skybags.co.in/collections/medium-luggage/products.json");
+        const response16 = axios.get("https://skybags.co.in/collections/large-luggage/products.json");
+        const response17 = axios.get("https://skybags.co.in/collections/tsa-lock-luggage/products.json");
+        const response18 = axios.get("https://skybags.co.in/collections/anti-theft-luggage/products.json");
+        const response19 = axios.get("https://skybags.co.in/collections/dual-wheels-luggage/products.json");
+        const response20 = axios.get("https://skybags.co.in/collections/backpacks/products.json");
+        const response21 = axios.get("https://skybags.co.in/collections/duffle/products.json");
+        const response22 = axios.get("https://skybags.co.in/collections/travelling-bags-for-students/products.json");
+        const response23 = axios.get("https://safaribags.com/collections/trolley-bags/products.json");
+        const response24 = axios.get("https://safaribags.com/collections/backpacks/products.json");
+        const response25 = axios.get("https://safaribags.com/collections/duffles/products.json");
+        const response26 = axios.get("https://safaribags.com/collections/accessories/products.json");
+
+        
   
         const responses = await Promise.all([
           response3,
@@ -30,7 +48,24 @@ export default function Home() {
           response7,
           response8,
           response9,
-          response10
+          response10,
+          response11,
+          response12,
+          response13,
+          response14,
+          response15,
+          response16,
+          response17,
+          response18,
+          response19,
+          response20,
+          response21,
+          response22,
+          response23,
+          response24,
+          response25,
+          response26
+
         ]);
   
         const combinedData = responses.reduce((acc, response) => {
@@ -164,7 +199,7 @@ export default function Home() {
               <div className="relative h-72 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10" />
                 <motion.img
-                  src={item.images[0].src}
+                  src={item.images[0].src || item.variants[0].featured_image.src}
                   alt={item.title}
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                   initial={{ scale: 1.2 }}
