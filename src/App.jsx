@@ -3,12 +3,15 @@ import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
 import Header from "./components/header";
 import Home from "./components/home";
 import Add from "./components/add";
+import ProductDetail from "./components/ProductDetail";
 
 function AppLayout() {
   return (
     <div>
       <Header />
-      <Outlet />
+      <main>
+        <Outlet />
+      </main>
     </div>
   );
 }
@@ -25,6 +28,10 @@ const appRouter = createBrowserRouter([
       {
         path: "/add",
         element: <Add />,
+      },
+      {
+        path: "/:id",
+        element: <ProductDetail />,
       },
     ],
   },
