@@ -4,6 +4,7 @@ import Header from "./components/header";
 import Home from "./components/home";
 import Add from "./components/add";
 import ProductDetail from "./components/ProductDetail";
+import Brands from "./components/brands";
 
 function AppLayout() {
   return (
@@ -32,6 +33,10 @@ const appRouter = createBrowserRouter([
       {
         path: "/:id",
         element: <ProductDetail />,
+      },
+      {
+        path : "/brands",
+        element : <Brands/>
       },
     ],
   },

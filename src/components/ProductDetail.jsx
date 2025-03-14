@@ -224,10 +224,10 @@ function ProductDetail() {
                             >
                                 <div className="flex items-baseline gap-3">
                                     <span className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-                                        ₹{parseFloat(selectedVariant.price).toLocaleString()}
+                                        ${parseFloat(selectedVariant.price).toLocaleString()}
                                     </span>
                                     <span className="text-gray-400 line-through">
-                                        ₹{parseFloat(selectedVariant.compare_at_price).toLocaleString()}
+                                        ${parseFloat(selectedVariant.compare_at_price).toLocaleString()}
                                     </span>
                                     <span className="bg-green-900/30 text-green-400 text-sm font-semibold px-3 py-1 rounded-full">
                                         {discountPercentage}% off
