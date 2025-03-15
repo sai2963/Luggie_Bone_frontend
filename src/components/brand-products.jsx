@@ -16,7 +16,7 @@ function BrandProducts({ brand }) {
         const response = await axios.get(
           `https://luggie-bone-backend.vercel.app/api/brands/${brand}`
         );
-        
+
         // Check if data exists and is an array
         if (response.data && Array.isArray(response.data)) {
           setProducts(response.data);
@@ -47,9 +47,9 @@ function BrandProducts({ brand }) {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   // Animation variants for each card
@@ -87,7 +87,9 @@ function BrandProducts({ brand }) {
         </div>
       ) : products.length === 0 ? (
         <div className="flex justify-center items-center h-64">
-          <p className="text-gray-400 text-lg">No products found for this brand.</p>
+          <p className="text-gray-400 text-lg">
+            No products found for this brand.
+          </p>
         </div>
       ) : (
         <motion.div
@@ -104,24 +106,24 @@ function BrandProducts({ brand }) {
             >
               {/* Hover overlay effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              
+
               {/* Animated glow effect */}
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl blur opacity-0 group-hover:opacity-30 transition duration-700 group-hover:duration-200" />
-              
+
               <div className="relative h-80 overflow-hidden">
                 {/* Image overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10" />
-                
+
                 <img
                   src={
-                    (item.images && item.images[0]?.src) || 
-                    (item.variants && item.variants[0]?.featured_image?.src) || 
+                    (item.images && item.images[0]?.src) ||
+                    (item.variants && item.variants[0]?.featured_image?.src) ||
                     "/fallback.jpg"
                   }
                   alt={item.title || `Product ${index + 1}`}
                   className="w-full h-full object-cover object-center transform group-hover:scale-110 transition-transform duration-1000"
                 />
-                
+
                 {/* New tag if product is new */}
                 {index < 2 && (
                   <div className="absolute top-4 right-4 z-20 bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-1 rounded-full text-xs font-bold tracking-wider text-white shadow-lg">
@@ -134,17 +136,24 @@ function BrandProducts({ brand }) {
                 <h2 className="text-2xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-500">
                   {item.title || `Product ${index + 1}`}
                 </h2>
-                
+
                 <p className="text-gray-400 text-sm mb-6 line-clamp-2 h-10">
                   {item.body_html
-                    ? item.body_html.replace(/<[^>]*>?/gm, '').substring(0, 100) + '...'
-                    : 'No description available'}
+                    ? item.body_html
+                        .replace(/<[^>]*>?/gm, "")
+                        .substring(0, 100) + "..."
+                    : "No description available"}
                 </p>
 
                 <div className="flex items-center justify-between mt-8">
                   <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-3 rounded-xl border border-gray-700/30 shadow-lg">
                     <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
-                      ${(item.variants && parseFloat(item.variants[0]?.price || "0").toFixed(2)) || "0.00"}
+                      $
+                      {(item.variants &&
+                        parseFloat(item.variants[0]?.price || "0").toFixed(
+                          2
+                        )) ||
+                        "0.00"}
                     </span>
                   </div>
 
@@ -159,9 +168,8 @@ function BrandProducts({ brand }) {
                   </Link>
                 </div>
 
-                {/* Premium bottom border effect */}
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700" />
-                
+
                 {/* Side border effects */}
                 <div className="absolute top-1/2 left-0 w-0.5 h-0 bg-gradient-to-b from-violet-600 to-fuchsia-600 transform -translate-y-1/2 group-hover:h-1/2 transition-all duration-700 delay-100" />
                 <div className="absolute top-1/2 right-0 w-0.5 h-0 bg-gradient-to-b from-fuchsia-600 to-violet-600 transform -translate-y-1/2 group-hover:h-1/2 transition-all duration-700 delay-100" />
@@ -170,7 +178,7 @@ function BrandProducts({ brand }) {
           ))}
         </motion.div>
       )}
-      
+
       {/* Premium section divider */}
       <div className="w-full flex justify-center mt-16">
         <div className="w-1/2 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
