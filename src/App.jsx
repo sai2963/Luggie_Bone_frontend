@@ -6,6 +6,7 @@ import Add from "./components/add";
 import ProductDetail from "./components/ProductDetail";
 import Brands from "./components/brands";
 import IndividualBrand from "./components/brand-individual";
+import Categories from "./components/categories";
 
 function AppLayout() {
   return (
@@ -42,6 +43,10 @@ const appRouter = createBrowserRouter([
       {
         path : "/brands/:brand",
         element : <IndividualBrand/>
+      },
+      {
+        path : "/categories",
+        element : <Categories/>
       },
     ],
   },
