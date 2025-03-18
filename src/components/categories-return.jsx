@@ -62,7 +62,7 @@ function CategoriesReturn({ CategoriesData }) {
               variants={itemVariants}
               className="group"
             >
-              <Link to={`/${item.name}`} className="block">
+              <Link to={`${item.name}`} className="block">
                 <div className="rounded-xl overflow-hidden shadow-lg shadow-purple-900/20 bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 transition-all duration-300 border border-gray-700 hover:border-purple-500/50 p-1">
                   <div className="aspect-w-16 aspect-h-9 w-full relative rounded-lg overflow-hidden">
                     <motion.img 
