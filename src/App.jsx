@@ -48,6 +48,10 @@ const appRouter = createBrowserRouter([
         path : "/categories",
         element : <Categories/>
       },
+      {
+        path : "/categories/:category",
+        element : <Categories/>
+      },
     ],
   },
 ]);
