@@ -8,6 +8,7 @@ import Brands from "./components/brands";
 import IndividualBrand from "./components/brand-individual";
 import Categories from "./components/categories";
 import Category_Individual from "./components/category-individual";
+import Cart from "./components/cart";
 
 function AppLayout() {
   return (
@@ -52,6 +53,10 @@ const appRouter = createBrowserRouter([
       {
         path : "/categories/:category",
         element : <Category_Individual/>
+      },
+      {
+        path : "/cart",
+        element : <Cart/>
       },
     ],
   },
